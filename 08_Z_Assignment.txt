@@ -21,8 +21,8 @@ The container should be limited to 128MiB of memory and 500m CPU (use resource l
 The container needs access to a database password in order to authenticate with a backend database server. The password is Kub3rn3t3sRul3s!. It should be stored in a secure fashion (as a Kubernetes secret called db-password) and passed to the container as an environment variable called DB_PASSWORD.
 
 Good luck!
-=====================================================================================================================
-$ kubectl create -f secret.yml
+****************************************************8888
+C:\Users\HP$ kubectl create -f secret.yml
 secret/db-password created
 
 secret.yml
@@ -34,8 +34,8 @@ type: Opaque
 stringData:
   password: Kub3rn3t3sRul3s!
 
-$ nano config.yml
-$ kubectl create -f config.yml
+C:\Users\HP$ nano config.yml
+C:\Users\HP$ kubectl create -f config.yml
 configmap/candy-service-config created
 
 config.yml
@@ -49,7 +49,7 @@ data:
     candy.nougat-armor.strength=10
 
 
-$ kubectl create -f pod.yml
+C:\Users\HP$ kubectl create -f pod.yml
 pod/candy-service-pod created
 
 pod.yml
@@ -82,16 +82,16 @@ spec:
      configMap:
        name: candy-service-config
 
- kubectl get pods
+ C:\Users\HP$kubectl get pods
 NAME                READY   STATUS              RESTARTS   AGE
 candy-service-pod   0/1     ContainerCreating   0          9s
 
-$ kubectl describe pod candy-service-pod
+C:\Users\HP$ kubectl describe pod candy-service-pod
 Name:         candy-service-pod
 Namespace:    default
 Priority:     0
 Node:         minikube/192.168.99.100
-Start Time:   Sat, 20 Jun 2020 20:58:08 +0530
+Start Time:   Fri, 19 Jun 2020 11:50:08 +0130
 Labels:       <none>
 Annotations:  <none>
 Status:       Running
@@ -146,5 +146,3 @@ Events:
   Normal  Pulling    37s   kubelet, minikube  Pulling image "linuxacademycontent/candy-service:1"
   Normal  Pulled     24s   kubelet, minikube  Successfully pulled image "linuxacademycontent/candy-service:1"
   Normal  Created    24s   kubelet, minikube  Created container candy-ctr
-
-https://opensource.com/article/19/6/introduction-kubernetes-secrets-and-configmaps

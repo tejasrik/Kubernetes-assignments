@@ -63,7 +63,7 @@ deployment.apps/candy-deployment created
 $ kubectl describe deploy candy-deployment
 Name:                   candy-deployment
 Namespace:              default
-CreationTimestamp:      Thu, 28 May 2020 04:04:00 +0000
+CreationTimestamp:      Sat, 20 Jun 2020 20:48:08 +0530
 Labels:                 <none>
 Annotations:            deployment.kubernetes.io/revision: 1
 Selector:               app=candy-ws
@@ -113,7 +113,7 @@ REVISION  CHANGE-CAUSE
 $ kubectl describe deploy candy-deployment
 Name:                   candy-deployment
 Namespace:              default
-CreationTimestamp:      Thu, 28 May 2020 04:04:00 +0000
+CreationTimestamp:      Sat, 20 Jun 2020 20:48:08 +0530
 Labels:                 <none>
 Annotations:            deployment.kubernetes.io/revision: 2
                         kubectl.kubernetes.io/last-applied-configuration:

@@ -1,0 +1,159 @@
+Learning Objectives:-
+Perform a rolling update of the container version
+Roll back to the previous working state
+
+
+Problem Statement:-
+Your company's developers have just finished developing a new version of their candy-themed mobile game. They are ready to update the backend services that are running in your Kubernetes cluster. There is a deployment in the cluster managing the replicas for this application. The deployment is called candy-deployment. 
+
+candy-deployment.yaml
+--------------------------
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: candy-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: candy-ws
+  template:
+    metadata:
+      labels:
+        app: candy-ws
+    spec:
+      containers:
+      - image: linuxacademycontent/candy-service:2
+        name: candy-ws
+
+
+You have been asked to update the image for the container named candy-ws in this deployment template to a new version, linuxacademycontent/candy-service:3.
+
+After you have updated the image using a rolling update, check on the status of the update to make sure it is working. If it is not working, perform a rollback to the previous state.
+
+Make sure that the rolling update is in such a way that atleast 25% of pods are up and running during update with Zero downtime.
+=================================================================================================================
+
+#create yml file
+vim candy.yml
+candy.yml
+-----------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: candy-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: candy-ws
+  template:
+    metadata:
+      labels:
+        app: candy-ws
+    spec:
+      containers:
+      - image: linuxacademycontent/candy-service:2
+        name: candy-ws
+
+$ kubectl create -f candy.yml
+deployment.apps/candy-deployment created
+
+#describe the deploy(revision: 1)
+$ kubectl describe deploy candy-deployment
+Name:                   candy-deployment
+Namespace:              default
+CreationTimestamp:      Thu, 28 May 2020 04:04:00 +0000
+Labels:                 <none>
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=candy-ws
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=candy-ws
+  Containers:
+   candy-ws:
+    Image:        linuxacademycontent/candy-service:2
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   candy-deployment-7f96bc678 (2/2 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  19s   deployment-controller  Scaled up replica set candy-deployment-7f96bc678 to 2
+#update the image for the container named candy-ws in this deployment template to a new version, linuxacademycontent/candy-service:3.(Edit the yml file) or
+kubectl set image deployment/candy-deployment candy-ws=linuxacademycontent/candy-service:3
+$ nano candy.yml
+ #updating the deployment
+$ kubectl apply -f candy.yml --record
+Warning: kubectl apply should be used on resource created by either kubectl create --save-config orkubectl apply
+deployment.apps/candy-deployment configured
+
+ kubectl get deploy candy-deployment
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+candy-deployment   2/2     1            2           4m5s
+$ kubectl rollout history deployment candy-deployment
+deployment.apps/candy-deployment
+REVISION  CHANGE-CAUSE
+1         <none>
+2         kubectl apply --filename=candy.yml --record=true
+
+#describe the updated deploy(revision: 2)
+$ kubectl describe deploy candy-deployment
+Name:                   candy-deployment
+Namespace:              default
+CreationTimestamp:      Thu, 28 May 2020 04:04:00 +0000
+Labels:                 <none>
+Annotations:            deployment.kubernetes.io/revision: 2
+                        kubectl.kubernetes.io/last-applied-configuration:
+                          {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"kubernetes.io/change-cause":"kubectl apply --filename=candy.yml --...
+                        kubernetes.io/change-cause: kubectl apply --filename=candy.yml --record=true
+Selector:               app=candy-ws
+Replicas:               2 desired | 1 updated | 3 total | 2 available | 1 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=candy-ws
+  Containers:
+   candy-ws:
+    Image:        linuxacademycontent/candy-service:3
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    ReplicaSetUpdated
+OldReplicaSets:  candy-deployment-7f96bc678 (2/2 replicas created)
+NewReplicaSet:   candy-deployment-764bb55f89 (1/1 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+  Normal  ScalingReplicaSet  5m20s  deployment-controller  Scaled up replica set candy-deployment-7f96bc678 to 2
+  Normal  ScalingReplicaSet  2m56s  deployment-controller  Scaled up replica set candy-deployment-764bb55f89 to 1
+
+#Perform a rollback to previous version-linuxacademycontent/candy-service:2 (revision=1) from the describe deploy command
+ 
+$kubectl rollout undo deployment candy-deployment --to-revision=1
+deployment.apps/candy-deployment rolled back
+
+$ kubectl rollout history deployment candy-deployment
+deployment.apps/candy-deployment
+REVISION  CHANGE-CAUSE
+2         kubectl apply --filename=candy.yml --record=true
+3         <none>

@@ -1,0 +1,107 @@
+
+Learning Objectives:-
+Create a yaml file containing the pod spec for the nginx pod.
+Create the pod.
+
+
+Your company is getting ready to launch a new website, and they need you to set up an nginx web server in their Kubernetes cluster. The nginx server will need to be accessible via network in the future, so you will need to expose port 80 as a containerPort for the nginx container. Your team has also asked you to ensure that nginx runs in quiet mode for the time being to cut down on unnecessary log output. You can do this by setting the command to nginx and passing the following arg to the container: -g daemon off; -q. As this nginx server belongs to the Web team, you will need to create it in the team's web namespace.
+
+To summarize:
+
+Use the nginx container image.
+The container needs a containerPort of 80.
+Set the command to nginx
+Pass in the -g daemon off; -q args to run nginx in quiet mode.
+Create the pod in the web namespace.
+Once the pod is created, you should be able to find it with kubectl get pods -n web. Once the pod is created, you can get more information about its current status with kubectl describe pod nginx -n web.
+*************************************************************************************
+$ kubectl create ns web
+namespace/web created
+$ kubectl get ns
+NAME              STATUS   AGE
+default           Active   16m
+kube-node-lease   Active   16m
+kube-public       Active   16m
+kube-system       Active   16m
+web               Active   3s
+
+
+#Create a yaml file containing the pod spec for the nginx pod.
+
+C:\Users\HP$ vim nginx.yml
+nginx.yml
+=-----------------=
+apiVersion: v1
+kind: Pod
+metadata:
+ name: nginx-pod
+ labels:
+  app: nginx-app
+spec:
+ containers:
+  - name: nginx-ctr
+   image: nginx
+   command: ["nginx"]
+    args: ["-g","daemon off;","-q"]
+    ports:
+     - containerPort: 80                                               
+                                                                                                                                                                                                                     C:\Users\HP>kubectl create -n web -f nginx.yaml                                                                         error: error validating "nginx.yaml": error validating data: [ValidationError(Pod): unknown field "containers" in io.k8s.api.core.v1.Pod, ValidationError(Pod): unknown field "labels" in io.k8s.api.core.v1.Pod, ValidationError(Pod): unknown field "name" in io.k8s.api.core.v1.Pod]; if you choose to ignore these errors, turn validation off with --validate=false                                                                                                                        C:\Users\HP>vim nginx.yaml
+C:\Users\HP>kubectl create -n web -f nginx.yaml
+pod/nginx-pod created
+
+C:\Users\HP> kubectl describe pods -n web
+Name:         nginx-pod
+Namespace:    web
+Priority:     0
+Node:         minikube/192.168.99.100
+Start Time:   Sat, 20 Jun 2020 20:48:08 +0530
+Labels:       app=nginx-app
+Annotations:  <none>
+Status:       Running
+IP:           172.17.0.4
+IPs:
+  IP:  172.17.0.4
+Containers:
+  nginx-ctr:
+    Container ID:  docker://12ab12830cc43de12a6f3a59ddc336d13a33d4f80e775d45e2d7879b341c0738
+    Image:         nginx
+    Image ID:      docker-pullable://nginx@sha256:21f32f6c08406306d822a0e6e8b7dc81f53f336570e852e25fbe1e3e3d0d0133
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Command:
+      nginx
+    Args:
+      -g
+      daemon off;
+      -q
+    State:          Running
+      Started:      Sat, 20 Jun 2020 20:48:37 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-mswzm (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  default-token-mswzm:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-mswzm
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  7m3s   default-scheduler  Successfully assigned web/nginx-pod to minikube
+  Normal  Pulling    7m2s   kubelet, minikube  Pulling image "nginx"
+  Normal  Pulled     6m35s  kubelet, minikube  Successfully pulled image "nginx"
+  Normal  Created    6m35s  kubelet, minikube  Created container nginx-ctr
+  Normal  Started    6m34s  kubelet, minikube  Started container nginx-ctr nginx
+  

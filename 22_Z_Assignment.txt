@@ -22,7 +22,7 @@ You will need to do the following:-
 	Expose the containerPort 3306.
 	Set an environment variable called MYSQL_ROOT_PASSWORD with the value password.
 	Add the PersistentVolumeClaim as a volume and mount it to the container at the path /var/lib/mysql.
-------------------------------------------------------------------------------------------
+**************************************************************8
 1. Create a PersistentVolume:
 
 nano pv.yml
@@ -127,8 +127,8 @@ $ kubectl describe pod mysql-pod
 Name:         mysql-pod
 Namespace:    default
 Priority:     0
-Node:         minikube/172.17.0.36
-Start Time:   Fri, 29 May 2020 02:27:57 +0000
+Node:        minikube/192.168.99.100
+Start Time:   Fri, 19 Jun 2020 20:48:08 +0530
 Labels:       <none>
 Annotations:  <none>
 Status:       Running
@@ -143,7 +143,7 @@ Containers:
     Port:           8080/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Fri, 29 May 2020 02:28:11 +0000
+      Started:      Fri, 19 Jun 2020 20:48:11 +0530
     Ready:          True
     Restart Count:  0
     Environment:

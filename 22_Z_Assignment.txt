@@ -23,11 +23,7 @@ You will need to do the following:-
 	Set an environment variable called MYSQL_ROOT_PASSWORD with the value password.
 	Add the PersistentVolumeClaim as a volume and mount it to the container at the path /var/lib/mysql.
 **************************************************************8
-1. Create a PersistentVolume:
-
 nano pv.yml
-
-
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -41,10 +37,8 @@ spec:
   hostPath:
    path: "/mnt/data"
 
-$ nano pv.yml
-$ kubectl create -f pv.yml
-
-2. Create a PersistentVolumeClaim:
+C:\Users\HP$ nano pv.yml
+C:\Users\HP$ kubectl create -f pv.yml
 
 pvc.yml
 
@@ -60,19 +54,13 @@ spec:
       storage: 500Mi
   storageClassName: local-storage
 
-$ kubectl get pv mysql-pv
+C:\Users\HP$ kubectl get pv mysql-pv
 NAME       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM   STORAGECLASS    REASON   AGE
 mysql-pv   1Gi        RWO            Retain           Bound    default/mysql-pv-claim   local-storage            5m12s
 
-$ nano pvc.yml
-$ kubectl create -f pvc.yml
+C:\Users\HP$ nano pvc.yml
+C:\Users\HP$ kubectl create -f pvc.yml
 persistentvolumeclaim/mysql-pv-claim created
-
-
-3. Create a MySQL Pod configured to use the PersistentVolumeClaim:
-
-For setting an environment variable called MYSQL_ROOT_PASSWORD with the value password,
-create a secret
 
 secret.yml
 
@@ -84,8 +72,8 @@ type: Opaque
 stringData:
   password: Kub3rn3t3sRul3s!
 
-$ nano secret.yml
-$ kubectl create -f secret.yml
+C:\Users\HP$ vim secret.yml
+C:\Users\HP$ kubectl create -f secret.yml
 secret/db-password created
 
 pod.yml
@@ -114,21 +102,21 @@ spec:
       persistentVolumeClaim:
         claimName: mysql-pv-claim
 
-$ nano pod.yml
+C:\Users\HP$ vim pod.yml
 
-$ kubectl create -f pod.yml
+C:\Users\HP$ kubectl create -f pod.yml
 pod/mysql-pod created
 
-$ kubectl get pod mysql-pod
+C:\Users\HP$ kubectl get pod mysql-pod
 NAME        READY   STATUS    RESTARTS   AGE
 mysql-pod   1/1     Running   0          8m50s
 
-$ kubectl describe pod mysql-pod
+C:\Users\HP$ kubectl describe pod mysql-pod
 Name:         mysql-pod
 Namespace:    default
 Priority:     0
 Node:        minikube/192.168.99.100
-Start Time:   Fri, 19 Jun 2020 20:48:08 +0530
+Start Time:   Fri, 19 Jun 2020 21:30:08 +0010
 Labels:       <none>
 Annotations:  <none>
 Status:       Running
@@ -143,7 +131,7 @@ Containers:
     Port:           8080/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Fri, 19 Jun 2020 20:48:11 +0530
+      Started:      Fri, 19 Jun 2020 21:30:08 +0010
     Ready:          True
     Restart Count:  0
     Environment:

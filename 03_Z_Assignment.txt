@@ -45,7 +45,7 @@ spec:
     args: ["-g","daemon off;","-q"]
     ports:
      - containerPort: 80                                               
-                                                                                                                                                                                                                     C:\Users\HP>kubectl create -n web -f nginx.yaml                                                                         error: error validating "nginx.yaml": error validating data: [ValidationError(Pod): unknown field "containers" in io.k8s.api.core.v1.Pod, ValidationError(Pod): unknown field "labels" in io.k8s.api.core.v1.Pod, ValidationError(Pod): unknown field "name" in io.k8s.api.core.v1.Pod]; if you choose to ignore these errors, turn validation off with --validate=false                                                                                                                        C:\Users\HP>vim nginx.yaml
+                                                                                                                                                                                                                                                                                  C:\Users\HP>vim nginx.yaml
 C:\Users\HP>kubectl create -n web -f nginx.yaml
 pod/nginx-pod created
 
@@ -54,7 +54,7 @@ Name:         nginx-pod
 Namespace:    web
 Priority:     0
 Node:         minikube/192.168.99.100
-Start Time:   Sat, 20 Jun 2020 20:48:08 +0530
+Start Time:   Fri, 19 Jun 2020 10:18:08 +0210
 Labels:       app=nginx-app
 Annotations:  <none>
 Status:       Running
@@ -75,7 +75,7 @@ Containers:
       daemon off;
       -q
     State:          Running
-      Started:      Sat, 20 Jun 2020 20:48:37 +0530
+      Started:      Fri, 19 Jun 2020 10:18:08 +0210
     Ready:          True
     Restart Count:  0
     Environment:    <none>

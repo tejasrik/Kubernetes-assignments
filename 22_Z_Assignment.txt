@@ -1,0 +1,181 @@
+Problem Statement:-
+Your company needs a small database server to support a new application. They have asked you to deploy a pod running a MySQL container, but they want the data to persist even if the pod is deleted or replaced. Therefore, the MySQL database pod requires persistent storage.
+
+
+You will need to do the following:-
+
+1. Create a PersistentVolume:
+	The PersistentVolume should be named mysql-pv.
+	The volume needs a capacity of 1Gi.
+	Use a storageClassName of localdisk.
+	Use the accessMode ReadWriteOnce.
+	Store the data locally on the node using a hostPath volume at the location /mnt/data.
+
+2. Create a PersistentVolumeClaim:
+	The PersistentVolumeClaim should be named mysql-pv-claim.
+	Set a resource request on the claim for 500Mi of storage.
+	Use the same storageClassName and accessModes as the PersistentVolume so that this claim can bind to the PersistentVolume.
+
+3. Create a MySQL Pod configured to use the PersistentVolumeClaim:
+	The Pod should be named mysql-pod.
+	Use the image mysql:5.6.
+	Expose the containerPort 3306.
+	Set an environment variable called MYSQL_ROOT_PASSWORD with the value password.
+	Add the PersistentVolumeClaim as a volume and mount it to the container at the path /var/lib/mysql.
+------------------------------------------------------------------------------------------
+1. Create a PersistentVolume:
+
+nano pv.yml
+
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+spec:
+  storageClassName: local-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+   path: "/mnt/data"
+
+$ nano pv.yml
+$ kubectl create -f pv.yml
+
+2. Create a PersistentVolumeClaim:
+
+pvc.yml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+  storageClassName: local-storage
+
+$ kubectl get pv mysql-pv
+NAME       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM   STORAGECLASS    REASON   AGE
+mysql-pv   1Gi        RWO            Retain           Bound    default/mysql-pv-claim   local-storage            5m12s
+
+$ nano pvc.yml
+$ kubectl create -f pvc.yml
+persistentvolumeclaim/mysql-pv-claim created
+
+
+3. Create a MySQL Pod configured to use the PersistentVolumeClaim:
+
+For setting an environment variable called MYSQL_ROOT_PASSWORD with the value password,
+create a secret
+
+secret.yml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-password
+type: Opaque
+stringData:
+  password: Kub3rn3t3sRul3s!
+
+$ nano secret.yml
+$ kubectl create -f secret.yml
+secret/db-password created
+
+pod.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-pod
+spec:
+  containers:
+    - name: myfrontend
+      image: mysql:5.6
+      env:
+      - name: MYSQL_ROOT_PASSWORD
+        valueFrom:
+         secretKeyRef:
+          name: db-password
+          key: password
+      volumeMounts:
+      - mountPath: "/var/lib/mysql"
+        name: vol
+      ports:
+      - containerPort: 8080 
+  volumes:
+    - name: vol
+      persistentVolumeClaim:
+        claimName: mysql-pv-claim
+
+$ nano pod.yml
+
+$ kubectl create -f pod.yml
+pod/mysql-pod created
+
+$ kubectl get pod mysql-pod
+NAME        READY   STATUS    RESTARTS   AGE
+mysql-pod   1/1     Running   0          8m50s
+
+$ kubectl describe pod mysql-pod
+Name:         mysql-pod
+Namespace:    default
+Priority:     0
+Node:         minikube/172.17.0.36
+Start Time:   Fri, 29 May 2020 02:27:57 +0000
+Labels:       <none>
+Annotations:  <none>
+Status:       Running
+IP:           172.18.0.6
+IPs:
+  IP:  172.18.0.6
+Containers:
+  myfrontend:
+    Container ID:   docker://fa394cf6035afa530378b617703132fdb16623d29617bcd7f08c703f1e59c905
+    Image:          mysql:5.6
+    Image ID:       docker-pullable://mysql@sha256:60c27b50ca72d81d92a743a965a82f124a4e123c7d374a021887286408878d60
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 29 May 2020 02:28:11 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      MYSQL_ROOT_PASSWORD:  <set to the key 'password' in secret 'db-password'>  Optional: false
+    Mounts:
+      /var/lib/mysql from vol (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-m4sbb (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  vol:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in thesame namespace)
+    ClaimName:  mysql-pv-claim
+    ReadOnly:   false
+  default-token-m4sbb:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-m4sbb
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  34s   default-scheduler  Successfully assigned default/mysql-pod to minikube
+  Normal  Pulling    33s   kubelet, minikube  Pulling image "mysql:5.6"
+  Normal  Pulled     21s   kubelet, minikube  Successfully pulled image "mysql:5.6"
+  Normal  Created    20s   kubelet, minikube  Created container myfrontend
+  Normal  Started    20s   kubelet, minikube  Started container myfrontend
+

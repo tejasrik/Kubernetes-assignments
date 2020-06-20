@@ -90,8 +90,8 @@ $ kubectl describe pod candy-service-pod
 Name:         candy-service-pod
 Namespace:    default
 Priority:     0
-Node:         minikube/172.17.0.47
-Start Time:   Thu, 28 May 2020 18:27:09 +0000
+Node:         minikube/192.168.99.100
+Start Time:   Sat, 20 Jun 2020 20:58:08 +0530
 Labels:       <none>
 Annotations:  <none>
 Status:       Running
@@ -106,7 +106,7 @@ Containers:
     Port:           <none>
     Host Port:      <none>
     State:          Running
-      Started:      Thu, 28 May 2020 18:27:25 +0000
+      Started:      Sat, 20 Jun 2020 20:58:08 +0530
     Ready:          True
     Restart Count:  0
     Limits:

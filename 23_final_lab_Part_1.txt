@@ -1,0 +1,80 @@
+Problem Statement:-
+
+Our pizza restaurant is working on a new web application designed to run in a Kubernetes cluster. The development team has designed a web service which serves a list of pizza toppings. The team has provided a set of specifications which the pizza topping web service needs in order to run.
+
+We have been asked to create a deployment that meets the app's specifications. Then, we need to expose the application using a NodePort service. This setup should meet the following criteria:
+
+1. All objects should be in the <your-name>-pizza namespace. This namespace already exists in the cluster.
+2. The deployment should be named pizza-deployment.
+3. The deployment should have 3 replicas.
+4. The deployment's pods should have one container using the linuxacademycontent/pizza-service image with the tag 1.14.6.
+5. Run the container with the command nginx.
+6. Run the container with the arguments "-g", "daemon off;".
+7. The pods should expose port 80 to the cluster.
+8. The pods should be configured to periodically check the /healthz endpoint on port 8081, and restart automatically if the request fails.
+9. The pods should not receive traffic from the service until the / endpoint on port 80 responds successfully.
+10. The service should be named pizza-service.
+11. The service should forward traffic to port 80 on the pods.
+12. The service should be exposed externally by listening on port 30080 on each node.
+***************************************************************************888
+C:\Users\HP$ kubectl create ns chandana-pizza
+namespace/chandana-pizza created
+C:\Users\HP$ vim pizza-deploy.yml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pizza-deployment
+  namespace: chandana-pizza
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pizza
+  template:
+    metadata:
+      labels:
+        app: pizza
+    spec:
+      containers:
+      - image: linuxacademycontent/pizza-service:1.14.6
+        name: pizza
+        command: ["nginx"]
+        args: ["-g", "daemon off;"]
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+
+C:\Users\HP$ kubectl create -f pizza-deploy.yml
+deployment.apps/pizza-deployment created
+
+C:\Users\HP$ kubectl get deploy pizza-deployment -n chandana-pizza
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+pizza-deployment   3/3     3            3           5m39s
+
+ nano pizza-svc.yml
+
+apiVersion: apps/v1
+kind: Service
+metadata:
+  name: pizza-svc
+  labels:
+   app: pizza
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      nodePort: 30080
+      targetPort: 80
+  selector:
+    app: pizza
+
+C:\Users\HP$ kubectl create -f pizza-svc.yml
+service/pizza-svc created
+
+C:\Users\HP$ kubectl get svc pizza-svc
+NAME        TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+pizza-svc   NodePort   10.102.85.232   <none>        80:30080/TCP   17s

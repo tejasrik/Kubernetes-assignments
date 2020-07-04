@@ -32,7 +32,7 @@ You have been asked to update the image for the container named candy-ws in this
 After you have updated the image using a rolling update, check on the status of the update to make sure it is working. If it is not working, perform a rollback to the previous state.
 
 Make sure that the rolling update is in such a way that atleast 25% of pods are up and running during update with Zero downtime.
-=================================================================================================================
+*******************************************************************8
 
 vim candy.yml
 candy.yml
@@ -61,7 +61,7 @@ deployment.apps/candy-deployment created
 C:\Users\HP$ kubectl describe deploy candy-deployment
 Name:                   candy-deployment
 Namespace:              default
-CreationTimestamp:      Fri, 20 Jun 2020 20:48:08 +0530
+CreationTimestamp:      Fri, 19 Jun 2020 20:48:08 +0530
 Labels:                 <none>
 Annotations:            deployment.kubernetes.io/revision: 1
 Selector:               app=candy-ws
